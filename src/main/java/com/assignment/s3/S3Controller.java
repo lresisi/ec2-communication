@@ -63,6 +63,11 @@ public class S3Controller {
         metadata.setContentType(String.valueOf(MediaType.APPLICATION_JSON));
         request.setMetadata(metadata);
         s3Client.putObject(request);
+        try {
+            path.toFile().delete();
+        } catch (Exception e) {
+            // do nothing
+        }
     }
 
     /**
