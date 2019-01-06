@@ -1,21 +1,23 @@
 package com.assignment;
 
-import com.amazonaws.regions.Regions;
-import com.assignment.s3.S3Controller;
+import com.assignment.inet.InetAddressUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
 
-    private static final Regions REGION = Regions.EU_CENTRAL_1; // EU (Frankfurt)
-
-    // Keys of an IAM with permissions only to the relevant bucket
-    private static final String SECRET_KEY = "MHbc0pD1jeRTmZTDfsTZipPK9hcjFogC4AbsT35U";
-    private static final String ACCESS_KEY = "AKIAIHJGXBA52FSPWPEA";
-
+    // TODO - move to Dockerfile
+    private static final ArrayList<String> hosts = new ArrayList<>(Arrays.asList(
+            "ec2-3-120-244-50.eu-central-1.compute.amazonaws.com",
+            "ec2-3-120-209-6.eu-central-1.compute.amazonaws.com"));
 
     /**
      * Main function for Springboot application
@@ -27,12 +29,14 @@ public class Application extends SpringBootServletInitializer {
     }
 
     /**
-     * A bean that provides a controller to AWS S3
+     * A bean that holds all other hosts
      *
      * @return
      */
     @Bean
-    public S3Controller s3Controller() {
-        return new S3Controller(ACCESS_KEY, SECRET_KEY, REGION);
+    public List<String> otherHosts() {
+        return hosts.stream()
+                .filter(host -> !InetAddressUtils.isLocalHost(host))
+                .collect(Collectors.toList());
     }
 }
